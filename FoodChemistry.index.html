@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Food Chemistry Quiz</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7fa; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0001; padding: 2rem; }
+    h1 { text-align: center; color: #007bff; }
+    .question { font-size: 1.2rem; margin-bottom: 1rem; }
+    .score { margin-bottom: 1rem; color: #22c55e; }
+    button { padding: 0.7rem 1.5rem; font-size: 1rem; border: none; border-radius: 6px; background: #007bff; color: #fff; cursor: pointer; }
+    button:disabled { background: #aaa; }
+    .feedback { margin: 1rem 0; font-weight: bold; }
+    .correct { color: #22c55e; }
+    .wrong { color: #e11d48; }
+    #options label { display: block; margin-bottom: 8px; cursor: pointer; }
+    #options input[type="radio"] { margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Food Chemistry Quiz</h1>
+    <div class="score" id="score"></div>
+    <div class="question" id="question"></div>
+    <div id="options"></div>
+    <button id="submit">Submit</button>
+    <div class="feedback" id="feedback"></div>
+    <button id="next" style="display:none;">Next Question</button>
+  </div>
+  <script>
+const qa = [
+  {q:"Which of the following is a monosaccharide?",options:["A) Maltose","B) Sucrose","C) Glucose","D) Starch"],correct:"C"},
+  {q:"What type of carbohydrate is cellulose?",options:["A) Disaccharide","B) Monosaccharide","C) Polysaccharide","D) Oligosaccharide"],correct:"C"},
+  {q:"What is the main process responsible for thickening starch in water?",options:["A) Hydrolysis","B) Gelatinization","C) Caramelization","D) Dextrinization"],correct:"B"},
+  {q:"Which process creates brown color and sweet flavor in heated sugar?",options:["A) Maillard reaction","B) Fermentation","C) Caramelization","D) Oxidation"],correct:"C"},
+  {q:"Maillard reaction occurs between...?",options:["A) Lipids and water","B) Protein and sugar","C) Acid and base","D) Alcohol and aldehyde"],correct:"B"},
+  {q:"What product results from dextrinization?",options:["A) Glucose","B) Dextrins","C) Lactose","D) Cellulose"],correct:"B"},
+  {q:"Which is a reducing sugar?",options:["A) Sucrose","B) Glucose","C) Starch","D) Cellulose"],correct:"B"},
+  {q:"What kind of bond connects monosaccharides in polysaccharides?",options:["A) Peptide","B) Glycosidic","C) Ester","D) Hydrogen"],correct:"B"},
+  {q:"What is the result of caramelization?",options:["A) Foam formation","B) Flavorless residue","C) Browning & aroma","D) Acidity increase"],correct:"C"},
+  {q:"Which of these is not involved in starch gelatinization?",options:["A) Heat","B) Water","C) Lipase","D) Starch"],correct:"C"},
+  {q:"What is the building block of proteins?",options:["A) Fatty acids","B) Glucose","C) Amino acids","D) Glycerol"],correct:"C"},
+  {q:"Which structure level involves alpha-helices and beta-sheets?",options:["A) Primary","B) Secondary","C) Tertiary","D) Quaternary"],correct:"B"},
+  {q:"Gelatin is derived from which protein?",options:["A) Casein","B) Collagen","C) Albumin","D) Globulin"],correct:"B"},
+  {q:"What bond connects amino acids?",options:["A) Hydrogen","B) Peptide","C) Ionic","D) Glycosidic"],correct:"B"},
+  {q:"Sickle cell anemia results from a mutation in...",options:["A) DNA of myosin","B) Hemoglobin gene","C) Collagen","D) Enzyme structure"],correct:"B"},
+  {q:"Which function is not related to proteins?",options:["A) Enzyme activity","B) Hormone production","C) Energy storage","D) Structural support"],correct:"C"},
+  {q:"What is an essential amino acid?",options:["A) One we can synthesize","B) One we must get from diet","C) Made in liver","D) Only in plants"],correct:"B"},
+  {q:"Which protein has quaternary structure?",options:["A) Hemoglobin","B) Insulin","C) Collagen","D) Pepsin"],correct:"A"},
+  {q:"Denaturation affects which level most?",options:["A) Primary","B) Secondary & tertiary","C) Genetic","D) Monomer"],correct:"B"},
+  {q:"What factor can cause denaturation?",options:["A) Cooling","B) pH change","C) Salt removal","D) Enzyme activation"],correct:"B"},
+  {q:"What is hydrolysis?",options:["A) Breaking bonds using water","B) Bonding with oxygen","C) Condensation","D) Oxidation"],correct:"A"},
+  {q:"Hydrolysis of proteins produces...",options:["A) Sugars","B) Lipids","C) Amino acids","D) Glycerol"],correct:"C"},
+  {q:"Carbohydrate hydrolysis yields...",options:["A) Amino acids","B) Fatty acids","C) Monosaccharides","D) Gases"],correct:"C"},
+  {q:"Essential amino acids are...",options:["A) Synthesized by the body","B) Obtained from diet","C) Made in liver","D) Only in plants"],correct:"B"},
+  {q:"Which is a conditionally essential amino acid?",options:["A) Valine","B) Arginine","C) Leucine","D) Lysine"],correct:"B"},
+  {q:"What causes protein denaturation?",options:["A) Low temperature","B) Acid, heat, alcohol","C) Oxygen","D) Glycerol"],correct:"B"},
+  {q:"Denaturation breaks what bonds?",options:["A) Peptide","B) Hydrogen & disulfide","C) Glycosidic","D) Ionic only"],correct:"B"},
+  {q:"What is a conjugated protein?",options:["A) Simple protein","B) Protein + non-protein group","C) Only enzymes","D) Water-soluble only"],correct:"B"},
+  {q:"Which is a conjugated protein?",options:["A) Hemoglobin","B) Collagen","C) Casein","D) Albumin"],correct:"A"},
+  {q:"Protein hydrolysis in stomach begins with...",options:["A) Amylase","B) Pepsin","C) Trypsin","D) Lipase"],correct:"B"},
+  {q:"What is chemical leavening?",options:["A) Microbial fermentation","B) Use of baking agents to release gas","C) Adding yeast only","D) Adding fat"],correct:"B"},
+  {q:"Which gas is produced during leavening?",options:["A) Oxygen","B) Carbon dioxide","C) Hydrogen","D) Nitrogen"],correct:"B"},
+  {q:"Baking powder contains...",options:["A) Only acid","B) Only base","C) Acid + base","D) Water"],correct:"C"},
+  {q:"Sodium bicarbonate is also known as...",options:["A) Baking powder","B) Baking soda","C) Cream of tartar","D) Vinegar"],correct:"B"},
+  {q:"Role of acid in leavening?",options:["A) Stabilizes fat","B) Activates enzymes","C) Reacts with base to form CO₂","D) Adds flavor only"],correct:"C"},
+  {q:"Which is not a leavening agent?",options:["A) Yeast","B) Air","C) Flour","D) Sodium bicarbonate"],correct:"C"},
+  {q:"Fast-acting leavening agent?",options:["A) Yeast","B) Baking soda","C) Wild bacteria","D) Time"],correct:"B"},
+  {q:"What causes leavening in cake?",options:["A) Gluten","B) Sugar","C) Chemical reactions","D) Water"],correct:"C"},
+  {q:"Double-acting baking powder reacts...",options:["A) Only with heat","B) In two stages: wet + heat","C) With salt","D) With fat"],correct:"B"},
+  {q:"Excess baking soda causes...",options:["A) Bitter taste","B) Better rise","C) Whiter color","D) No change"],correct:"A"},
+  {q:"What is “bound water”?",options:["A) Free to freeze","B) Tightly associated with molecules","C) Easily removed","D) Ice crystals"],correct:"B"},
+  {q:"Free water is...",options:["A) Chemically bound","B) Responsible for microbial growth","C) Found in glass","D) Crystalline"],correct:"B"},
+  {q:"Water activity (aw) measures...",options:["A) Bound water","B) Free water","C) Combined water","D) Metabolic water"],correct:"B"},
+  {q:"Which water is unavailable to microbes?",options:["A) Bound water","B) Free water","C) Surface water","D) Liquid water"],correct:"A"},
+  {q:"aw of pure water is...",options:["A) 0.0","B) 1.0","C) 0.5","D) –1.0"],correct:"B"},
+  {q:"Dry foods have low...",options:["A) pH","B) aw","C) Viscosity","D) Temperature"],correct:"B"},
+  {q:"Most easily removed during drying?",options:["A) Free water","B) Bound water","C) Structural water","D) Crystal water"],correct:"A"},
+  {q:"Rapid spoilage occurs at aw >...",options:["A) 0.2","B) 0.5","C) 0.85","D) 1.0"],correct:"C"},
+  {q:"Intermediate‐moisture foods aw ~...",options:["A) 0.1","B) 0.3","C) 0.7","D) 1.0"],correct:"C"},
+  {q:"What reduces aw?",options:["A) Heating only","B) Sugar/salt addition","C) Oil spraying","D) Oxygen removal"],correct:"B"},
+  {q:"What defines an acid?",options:["A) Donates OH⁻","B) Accepts H⁺","C) Donates H⁺","D) Neutralizes salts"],correct:"C"},
+  {q:"Neutral pH at 25°C is...",options:["A) 0","B) 7","C) 14","D) 1"],correct:"B"},
+  {q:"Which is a weak acid?",options:["A) HCl","B) H₂SO₄","C) Acetic acid","D) NaOH"],correct:"C"},
+  {q:"Buffer resists changes in...",options:["A) Viscosity","B) pH","C) Volume","D) Temperature"],correct:"B"},
+  {q:"pKa is the pH when...",options:["A) Solution freezes","B) Enzyme denatures","C) Acid is half dissociated","D) Salt forms"],correct:"C"},
+  {q:"A solution with pH = 3 is...",options:["A) Neutral","B) Weakly acidic","C) Strongly acidic","D) Basic"],correct:"C"},
+  {q:"What pair forms a good buffer?",options:["A) NaCl and H₂O","B) HCl and NaOH","C) Acetic acid and acetate","D) Glucose and fructose"],correct:"C"},
+  {q:"Adding acid to buffer causes...",options:["A) Large pH drop","B) Stable pH","C) pH increase","D) Buffer precipitation"],correct:"B"},
+  {q:"Strong acids dissociate...",options:["A) Partially","B) Fully","C) Not at all","D) Conditionally"],correct:"B"},
+  {q:"pH scale is based on...",options:["A) Base 2","B) Base 5","C) Base 10","D) Base e"],correct:"C"},
+  {q:"What causes kinks in fatty acids?",options:["A) Saturated bonds","B) Trans bonds","C) Cis double bonds","D) Ester bonds"],correct:"C"},
+  {q:"Kinks prevent molecules from...",options:["A) Oxidizing","B) Crystalizing tightly","C) Floating","D) Emulsifying"],correct:"B"},
+  {q:"Kinks do what to melting point?",options:["A) Increase it","B) No change","C) Decrease it","D) Solidify"],correct:"C"},
+  {q:"Cis double bonds result in...",options:["A) Flat molecules","B) Bent structure","C) Saturation","D) Peptide linkage"],correct:"B"},
+  {q:"Trans fats are...",options:["A) Natural","B) Bent","C) Linear","D) Aromatic"],correct:"C"},
+  {q:"Plant oils are liquid at room temperature due to...",options:["A) Long chain length","B) Saturation","C) Cis-kinks","D) Water content"],correct:"C"},
+  {q:"More kinks mean...",options:["A) Higher melting point","B) More solid","C) More fluidity","D) Less flavor"],correct:"C"},
+  {q:"Which fatty acid is polyunsaturated?",options:["A) Stearic","B) Oleic","C) Linoleic","D) Palmitic"],correct:"C"},
+  {q:"Kinks affect membrane...",options:["A) Rigidity","B) Fluidity","C) Protein content","D) Nucleus size"],correct:"B"},
+  {q:"Kinked fatty acids resist...",options:["A) Digestion","B) Crystallization","C) Transport","D) Emulsification"],correct:"B"},
+  {q:"“18” in 18:0 means...",options:["A) Double bonds","B) Oxygen atoms","C) Carbon atoms","D) Chain length"],correct:"C"},
+  {q:"“0” in 18:0 means...",options:["A) Hydrogen atoms","B) Double bonds","C) Ester groups","D) Carboxyls"],correct:"B"},
+  {q:"18:2 cis-9,12 is...",options:["A) Stearic acid","B) Linoleic acid","C) Oleic acid","D) Palmitic acid"],correct:"B"},
+  {q:"18:3 cis-9,12,15 is...",options:["A) DHA","B) α-Linolenic acid","C) Arachidonic acid","D) Myristic acid"],correct:"B"},
+  {q:"18:1 cis-9 is...",options:["A) Linoleic acid","B) Oleic acid","C) Stearic acid","D) Erucic acid"],correct:"B"},
+  {q:"ω-3 means...",options:["A) Double bond at 3rd from methyl end","B) pH = 3","C) 3 oxygen atoms","D) 3 kinks"],correct:"A"},
+  {q:"CH₃–CH₂–(CH=CH–CH₂)₃–(CH₂)₆–COOH is...",options:["A) Linoleic acid","B) α-Linolenic acid","C) Stearic acid","D) Palmitoleic acid"],correct:"B"},
+  {q:"Omega naming counts from...",options:["A) Carboxyl end","B) Methyl end","C) Middle","D) Random"],correct:"B"},
+  {q:"18:0 is...",options:["A) Saturated","B) Unsaturated","C) Polyunsaturated","D) Ketoacid"],correct:"A"},
+  {q:"More double bonds mean...",options:["A) Less reactive","B) Higher melting point","C) Lower melting point","D) No change"],correct:"C"},
+  {q:"What is a triglyceride made of?",options:["A) 3 glycerols","B) Glycerol + 3 fatty acids","C) 3 sugars","D) Phosphate"],correct:"B"},
+  {q:"What bond in triglycerides?",options:["A) Ester","B) Peptide","C) Amide","D) Glycosidic"],correct:"A"},
+  {q:"Not in phospholipid?",options:["A) Glycerol","B) 3 fatty acids","C) Phosphate group","D) Polar head"],correct:"B"},
+  {q:"Amphipathic part?",options:["A) Fully polar","B) Hydrophilic head + hydrophobic tail","C) 3 tails","D) Protein"],correct:"B"},
+  {q:"Forms cell membranes?",options:["A) Waxes","B) Phospholipids","C) Triglycerides","D) Sterols"],correct:"B"},
+  {q:"Waxes are...",options:["A) Fatty acid + alcohol","B) Amino acid + alcohol","C) Sugar","D) Cholesterol"],correct:"A"},
+  {q:"Hydrogenation...",options:["A) Makes more liquid","B) Adds oxygen","C) Converts double bonds to single","D) Decreases melting point"],correct:"C"},
+  {q:"Liquid at room temp?",options:["A) Fats","B) Oils","C) Both","D) None"],correct:"B"},
+  {q:"Partial hydrogenation makes...",options:["A) Saturated fats","B) Trans fats","C) Proteins","D) Soap"],correct:"B"},
+  {q:"Sphingolipid contains...",options:["A) Wax","B) Glycerol","C) Sphingosine","D) Lecithin"],correct:"C"},
+  {q:"Saponification uses...",options:["A) Water","B) Acid","C) Base (NaOH)","D) Alcohol"],correct:"C"},
+  {q:"Product of saponification?",options:["A) Glycerol + Soap","B) Alcohol + Fat","C) Glucose","D) Protein"],correct:"A"},
+  {q:"Soap is salt of...",options:["A) Glycerol","B) Fatty acid","C) Carbohydrate","D) Cholesterol"],correct:"B"},
+  {q:"Saponification is...",options:["A) Dehydration","B) Hydrolysis","C) Condensation","D) Oxidation"],correct:"B"},
+  {q:"Enzyme hydrolyzes fats?",options:["A) Amylase","B) Protease","C) Lipase","D) Maltase"],correct:"C"},
+  {q:"Soap in water forms...",options:["A) Precipitates","B) Micelles","C) Foam","D) Gel"],correct:"B"},
+  {q:"In micelles tails point...",options:["A) Outward","B) Inward","C) Random","D) Away from water"],correct:"B"},
+  {q:"Other hydrolysis product?",options:["A) Sugar","B) Alcohol","C) Glycerol","D) Protein"],correct:"C"},
+  {q:"Soap acts as...",options:["A) Antioxidant","B) Emulsifier","C) Vitamin","D) pH buffer"],correct:"B"},
+  {q:"Saponification value means...",options:["A) pKa","B) Soap weight","C) KOH needed to saponify fat","D) pH change"],correct:"C"},
+  {q:"Terpenes are made from...",options:["A) Glucose","B) Acetyl-CoA","C) Isoprene","D) Amino acids"],correct:"C"},
+  {q:"Monoterpene C count?",options:["A) 5","B) 10","C) 15","D) 20"],correct:"B"},
+  {q:"Which is diterpene?",options:["A) Limonene","B) β-carotene","C) Retinol","D) Cholesterol"],correct:"C"},
+  {q:"Steroids have...",options:["A) 2 rings","B) 3 rings","C) 4 rings","D) 5 rings"],correct:"C"},
+  {q:"Cholesterol precursor?",options:["A) Retinol","B) Lanosterol","C) Squalene","D) Testosterone"],correct:"C"},
+  {q:"Plant citrus terpene?",options:["A) Menthol","B) Limonene","C) Cholesterol","D) Lecithin"],correct:"B"},
+  {q:"Diterpene‐derived vitamin?",options:["A) C","B) D","C) E","D) A"],correct:"D"},
+  {q:"Steroid hormone?",options:["A) Insulin","B) Estrogen","C) Glucose","D) Pepsin"],correct:"B"},
+  {q:"UV‐derived steroid?",options:["A) Vitamin D3","B) Testosterone","C) Cortisol","D) Progesterone"],correct:"A"},
+  {q:"Steroid vs terpene?",options:["A) Sugary","B) 4‐ring backbone","C) Acidic","D) Water-soluble"],correct:"B"},
+  {q:"Which vitamin is fat‐soluble?",options:["A) C","B) B12","C) A","D) B6"],correct:"C"},
+  {q:"Vitamin C helps with...?",options:["A) Vision","B) Collagen synthesis","C) Bone growth","D) Fat metabolism"],correct:"B"},
+  {q:"Vitamin D deficiency →",options:["A) Pellagra","B) Scurvy","C) Rickets","D) Anemia"],correct:"C"},
+  {q:"Vitamin B1 is...",options:["A) Riboflavin","B) Thiamin","C) Niacin","D) Pyridoxine"],correct:"B"},
+  {q:"Antioxidant vitamin?",options:["A) K","B) D","C) E","D) B2"],correct:"C"},
+  {q:"Vitamin A for...?",options:["A) Calcium absorption","B) DNA replication","C) Night vision","D) Blood clotting"],correct:"C"},
+  {q:"Blood clotting vitamin?",options:["A) A","B) K","C) E","D) D"],correct:"B"},
+  {q:"B12 deficiency →",options:["A) Night blindness","B) Scurvy","C) Pernicious anemia","D) Osteomalacia"],correct:"C"},
+  {q:"Folate needed in...?",options:["A) Digestion","B) Pregnancy","C) Childhood","D) Aging"],correct:"B"},
+  {q:"Water‐soluble vitamins are...?",options:["A) Stored in liver","B) Excreted in urine","C) Toxic in low doses","D) Stored in fat"],correct:"B"},
+  {q:"Which fiber dissolves in water?",options:["A) Cellulose","B) Hemicellulose","C) Pectin","D) Lignin"],correct:"C"},
+  {q:"Which bulk-forming fiber?",options:["A) Soluble","B) Insoluble","C) Emulsified","D) Micellar"],correct:"B"},
+  {q:"Inulin is...",options:["A) Lipid","B) Protein","C) Soluble fiber","D) Vitamin"],correct:"C"},
+  {q:"Fiber reduces...?",options:["A) Protein","B) Cholesterol","C) DNA","D) Alcohol"],correct:"B"},
+  {q:"Non‐fermented fiber?",options:["A) Inulin","B) Cellulose","C) Pectin","D) β-glucan"],correct:"B"},
+  {q:"Prebiotic fiber?",options:["A) Lignin","B) Inulin","C) Waxes","D) Sucrose"],correct:"B"},
+  {q:"Gel in jams?",options:["A) Hemicellulose","B) Pectin","C) Cellulose","D) Gums"],correct:"B"},
+  {q:"Fiber helps with...?",options:["A) Tooth growth","B) Blood thinning","C) Gut motility","D) Hormone release"],correct:"C"},
+  {q:"Rich in insoluble fiber?",options:["A) Apple juice","B) White rice","C) Wheat bran","D) Olive oil"],correct:"C"},
+  {q:"Recommended fiber intake?",options:["A) 5 g","B) 15 g","C) 25–30 g","D) 100 g"],correct:"C"},
+  {q:"Digestion begins in...?",options:["A) Stomach","B) Mouth","C) Colon","D) Liver"],correct:"B"},
+  {q:"Mouth enzyme?",options:["A) Amylase","B) Lipase","C) Lactase","D) Protease"],correct:"A"},
+  {q:"Maltose broken by…?",options:["A) Amylase","B) Maltase","C) Lactase","D) Invertase"],correct:"B"},
+  {q:"Final digestion products?",options:["A) Disaccharides","B) Fatty acids","C) Monosaccharides","D) Enzymes"],correct:"C"},
+  {q:"Absorbed in…?",options:["A) Stomach","B) Colon","C) Small intestine","D) Liver"],correct:"C"},
+  {q:"Lactose intolerance cause?",options:["A) No glucose","B) No amylase","C) No lactase","D) Extra insulin"],correct:"C"},
+  {q:"Glucose absorption via…?",options:["A) Simple diffusion","B) Facilitated diffusion","C) Active transport","D) Phagocytosis"],correct:"C"},
+  {q:"Sucrose broken by…?",options:["A) Lactase","B) Maltase","C) Sucrase","D) Amylase"],correct:"C"},
+  {q:"Starch is…?",options:["A) Monosaccharide","B) Disaccharide","C) Polysaccharide","D) Lipid"],correct:"C"},
+  {q:"Digestion pauses in…?",options:["A) Mouth","B) Liver","C) Stomach","D) Small intestine"],correct:"C"},
+  {q:"What is emulsification?",options:["A) Drying proteins","B) Stabilizing oil-water mix","C) Freezing water","D) Adding air"],correct:"B"},
+  {q:"Emulsifier example?",options:["A) Lecithin","B) Alcohol","C) Cellulose","D) Glycerol"],correct:"A"},
+  {q:"High water surface tension due to…?",options:["A) Weak bonds","B) No bonds","C) Hydrogen bonding","D) Ionic bonding"],correct:"C"},
+  {q:"Emulsions are…?",options:["A) Solids","B) Gels","C) Two immiscible liquids","D) Proteins only"],correct:"C"},
+  {q:"Stabilizing structure?",options:["A) Hydrogen","B) Emulsifier","C) DNA","D) Vitamin"],correct:"B"},
+  {q:"O/W means…?",options:["A) Oil in water","B) Water in oil","C) Oil and wax","D) Oil in whey"],correct:"A"},
+  {q:"Lecithin source?",options:["A) Milk","B) Wheat","C) Soy or egg yolk","D) Butter"],correct:"C"},
+  {q:"Surface tension unit?",options:["A) kg/m³","B) Pascal","C) mN/m","D) Volts"],correct:"C"},
+  {q:"Lowers surface tension?",options:["A) Adding salt","B) Adding surfactant","C) Freezing","D) Stirring"],correct:"B"},
+  {q:"Creaming is…?",options:["A) Protein folding","B) Emulsion breakdown","C) Sugar melting","D) Yeast activation"],correct:"B"},
+  {q:"Surfactant stands for…?",options:["A) Surface Activation","B) Surface Active Agent","C) Sub-unit activator","D) Surfactant atom"],correct:"B"},
+  {q:"Surfactants are…?",options:["A) Fully hydrophilic","B) Fully hydrophobic","C) Amphipathic","D) Neutral"],correct:"C"},
+  {q:"Food-grade surfactant?",options:["A) SLS","B) Tween 80","C) Detergent","D) Soap"],correct:"B"},
+  {q:"Hydrophilic part?",options:["A) Tail","B) Head","C) Core","D) Whole molecule"],correct:"B"},
+  {q:"Surfactants form…?",options:["A) Enzymes","B) Micelles","C) Proteins","D) Sugars"],correct:"B"},
+  {q:"Lecithin acts as…?",options:["A) Colorant","B) Emulsifier","C) Preservative","D) Acid"],correct:"B"},
+  {q:"Surfactants reduce…?",options:["A) pH","B) Surface tension","C) Protein","D) Energy"],correct:"B"},
+  {q:"SLS used in…?",options:["A) Chocolate","B) Shampoos","C) Milk","D) Cakes"],correct:"B"},
+  {q:"Micelle tails point…?",options:["A) Outward","B) Inward","C) Upward","D) Random"],correct:"B"},
+  {q:"Zwitterionic surfactants have…?",options:["A) No charge","B) + and – charges","C) Only –","D) Only +"],correct:"B"},
+  {q:"Which is not a mineral?",options:["A) Iron","B) Zinc","C) Folate","D) Calcium"],correct:"C"},
+  {q:"Bone mineral?",options:["A) Iron","B) Sodium","C) Calcium","D) Zinc"],correct:"C"},
+  {q:"Iron deficiency →",options:["A) Night blindness","B) Anemia","C) Tooth decay","D) Rickets"],correct:"B"},
+  {q:"Role of iodine?",options:["A) Bone growth","B) Vision","C) Thyroid hormone synthesis","D) Hemoglobin structure"],correct:"C"},
+  {q:"Sodium regulates…?",options:["A) DNA","B) Blood pressure","C) Enzymes","D) Teeth"],correct:"B"},
+  {q:"Vitamin for calcium absorption?",options:["A) A","B) B12","C) C","D) D"],correct:"D"},
+  {q:"Folate important for…?",options:["A) Hair color","B) Nerve function","C) DNA synthesis","D) Eye health"],correct:"C"},
+  {q:"Zinc supports…?",options:["A) Taste perception","B) Bone repair","C) Water absorption","D) DNA damage"],correct:"A"},
+  {q:"Scurvy caused by lack of…?",options:["A) Iron","B) Zinc","C) Vitamin C","D) Vitamin B6"],correct:"C"},
+  {q:"Immune-support mineral?",options:["A) Calcium","B) Potassium","C) Zinc","D) Magnesium"],correct:"C"}
+];
+
+let score = 0, current = 0, order = [];
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+function showQuestion() {
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('next').style.display = 'none';
+  const q = qa[order[current]];
+  document.getElementById('question').textContent = `Q${current+1}: ${q.q}`;
+  document.getElementById('score').textContent = `Score: ${score} / ${current}`;
+  // Render options
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const letter = String.fromCharCode(65 + i);
+    opts.innerHTML += `
+      <label>
+        <input type="radio" name="opt" value="${letter}"> ${opt}
+      </label>
+    `;
+  });
+  document.getElementById('submit').disabled = false;
+}
+function checkAnswer() {
+  const radios = document.getElementsByName('opt');
+  let selected = '';
+  for (const r of radios) if (r.checked) selected = r.value;
+  const correct = qa[order[current]].correct;
+  const feedback = document.getElementById('feedback');
+  if (!selected) {
+    feedback.textContent = 'Please select an answer!';
+    feedback.className = 'feedback wrong';
+    return;
+  }
+  if (selected === correct) {
+    feedback.textContent = 'Correct!';
+    feedback.className = 'feedback correct';
+    score++;
+  } else {
+    feedback.textContent = `Wrong! Correct answer: ${correct}`;
+    feedback.className = 'feedback wrong';
+  }
+  document.getElementById('score').textContent = `Score: ${score} / ${current+1}`;
+  document.getElementById('next').style.display = 'inline-block';
+  // Disable all radios
+  for (const r of radios) r.disabled = true;
+  document.getElementById('submit').disabled = true;
+}
+function nextQuestion() {
+  current++;
+  if (current < qa.length) {
+    showQuestion();
+  } else {
+    document.getElementById('question').textContent = 'Quiz finished!';
+    document.getElementById('options').innerHTML = '';
+    document.getElementById('submit').style.display = 'none';
+    document.getElementById('next').style.display = 'none';
+    document.getElementById('score').textContent = `Final Score: ${score} / ${qa.length}`;
+  }
+}
+// Start game
+for (let i = 0; i < qa.length; i++) order.push(i);
+shuffle(order);
+showQuestion();
+document.getElementById('submit').onclick = checkAnswer;
+document.getElementById('next').onclick = nextQuestion;
+  </script>
+</body>
+</html>
